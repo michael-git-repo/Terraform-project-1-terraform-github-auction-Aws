@@ -58,4 +58,35 @@ Traffic -----> | [Internet] ->|   +-------------------------------------------+ 
 ├── variables.tf                   # Root variables (Region & Instance Type)
 └── README.md                      # Project documentation   \
 
-🛠️ Infrastructure ComponentsResource NameTypeDescriptionmy-vpcaws_vpcCIDR 10.0.0.0/16 with DNS hostnames enabledmy-subnetaws_subnetCIDR 10.0.1.0/24 in us-east-1a with auto-public IPmy-gate-wayaws_internet_gatewayEnables internet connectivity for the public subnetmy-public-rtaws_route_tableDirects 0.0.0.0/0 traffic to my-gate-waymy-web-sgaws_security_groupAllows inbound TCP traffic on ports 22 (SSH) and 80 (HTTP)my-ec2-instanceaws_instancet3.micro instance running Amazon Linux🔑 GitHub Actions SetupTo enable automated deployment, add the following secrets in your GitHub repository (Settings $\rightarrow$ Secrets and variables $\rightarrow$ Actions):Secret NameDescriptionAWS_ACCESS_KEY_IDAWS IAM User Access Key IDAWS_SECRET_ACCESS_KEYAWS IAM User Secret Access Key⚡ Deployment PipelineThe pipeline triggers automatically on GitHub pushes and pull requests:Format Check: Runs terraform fmt -check -recursive to enforce code standards.Initialization: Runs terraform init to load modules and the AWS provider.Plan: Runs terraform plan to preview infrastructure modifications.Apply: Automatically runs terraform apply -auto-approve when code is merged into the main branch.
+## 🛠️ Infrastructure Components
+
+| Resource Name | Type | Description |
+| :--- | :--- | :--- |
+| `my-vpc` | `aws_vpc` | CIDR `10.0.0.0/16` with DNS hostnames enabled |
+| `my-subnet` | `aws_subnet` | CIDR `10.0.1.0/24` in `us-east-1a` with auto-public IP |
+| `my-gate-way` | `aws_internet_gateway` | Enables internet connectivity for the public subnet |
+| `my-public-rt` | `aws_route_table` | Directs `0.0.0.0/0` traffic to `my-gate-way` |
+| `my-web-sg` | `aws_security_group` | Allows inbound TCP traffic on ports 22 (SSH) and 80 (HTTP) |
+| `my-ec2-instance` | `aws_instance` | `t3.micro` instance running Amazon Linux |
+
+---
+
+## 🔑 GitHub Actions Setup
+
+To enable automated deployment, add the following secrets in your GitHub repository (**Settings** $\rightarrow$ **Secrets and variables** $\rightarrow$ **Actions**):
+
+| Secret Name | Description |
+| :--- | :--- |
+| `AWS_ACCESS_KEY_ID` | AWS IAM User Access Key ID |
+| `AWS_SECRET_ACCESS_KEY` | AWS IAM User Secret Access Key |
+
+---
+
+## ⚡ Deployment Pipeline
+
+The pipeline triggers automatically on GitHub pushes and pull requests:
+
+* **Format Check:** Runs `terraform fmt -check -recursive` to enforce code standards.
+* **Initialization:** Runs `terraform init` to load modules and the AWS provider.
+* **Plan:** Runs `terraform plan` to preview infrastructure modifications.
+* **Apply:** Automatically runs `terraform apply -auto-approve` when code is merged into the `main` branch.
