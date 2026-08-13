@@ -1,0 +1,56 @@
+# Name of the workflow as it appears in the GitHub Actions tab
+name: "Terraform Modular Deployment"
+
+# Controls when the workflow will run
+on:
+  push:
+    # Triggers the workflow on push events to the main branch
+    branches:
+      - main
+  pull_request:
+    # Triggers the workflow on pull request events targeted at the main branch
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: "Terraform Run"
+    # Specifies the virtual machine environment to execute the steps
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checks out your repository code so the workflow can access it
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Installs and configures the Terraform CLI tool on the runner
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      # Step 3: Configures AWS credentials using encrypted secrets stored in GitHub Settings
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # Step 4: Initializes Terraform (downloads provider plugins and modules)
+      - name: Terraform Init
+        run: terraform init
+
+      # Step 5: Checks whether all Terraform code is formatted properly across all subdirectories
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      # Step 6: Generates an execution plan to show what changes will be made to AWS infrastructure
+      - name: Terraform Plan
+        run: terraform plan -no-color
+
+      # Step 7: Applies the changes to AWS infrastructure
+      # NOTE: This step only runs if the event is a merge/push directly to the 'main' branch
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve
