@@ -24,10 +24,11 @@ jobs:
         uses: actions/checkout@v4
 
       # Step 2: Installs and configures the Terraform CLI tool on the runner
-      - name: Setup Terraform
+     - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.6.0
+          terraform_version: 1.9.5
+          terraform_wrapper: false
 
       # Step 3: Configures AWS credentials using encrypted secrets stored in GitHub Settings
       - name: Configure AWS Credentials
