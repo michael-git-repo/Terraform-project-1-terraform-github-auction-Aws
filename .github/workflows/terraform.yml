@@ -19,18 +19,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checks out your repository code so the workflow can access it
+      # Step 1: Checks out your repository code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Installs and configures the Terraform CLI tool on the runner
-     - name: Setup Terraform
+      # Step 2: Installs and configures Terraform CLI
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.5
           terraform_wrapper: false
 
-      # Step 3: Configures AWS credentials using encrypted secrets stored in GitHub Settings
+      # Step 3: Configures AWS credentials from GitHub Secrets
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -38,20 +38,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # Step 4: Initializes Terraform (downloads provider plugins and modules)
+      # Step 4: Initializes Terraform
       - name: Terraform Init
         run: terraform init
 
-      # Step 5: Checks whether all Terraform code is formatted properly across all subdirectories
+      # Step 5: Checks whether all Terraform code is formatted properly
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
-      # Step 6: Generates an execution plan to show what changes will be made to AWS infrastructure
+      # Step 6: Generates an execution plan
       - name: Terraform Plan
         run: terraform plan -no-color
 
-      # Step 7: Applies the changes to AWS infrastructure
-      # NOTE: This step only runs if the event is a merge/push directly to the 'main' branch
+      # Step 7: Applies the changes to AWS infrastructure (only on push to main)
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve
